@@ -15,7 +15,7 @@ const UnauthorizedError = require('../errors/unauthorized-error');
 const ConflictError = require('../errors/conflict-error');
 const InternalServerError = require('../errors/internal-server-error');
 
-const { defaultSecretKey } = require('../utils/utils');
+const defaultSecretKey = require('../utils/constants');
 
 const { JWT_SECRET = defaultSecretKey } = process.env;
 

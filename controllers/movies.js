@@ -9,16 +9,14 @@ const InternalServerError = require('../errors/internal-server-error');
 const getMovies = (req, res, next) => {
   Movie.find({})
     .populate('owner')
-    .then((cards) => res.send(cards))
+    .then((movies) => res.send(movies))
     .catch(() => next(new InternalServerError('Произошла ошибка')));
 };
 
 const addMovie = (req, res, next) => {
-  const { name, link } = req.body;
-
-  Movie.create({ owner: req.user._id, name, link })
-    .then((card) => card.populate('owner'))
-    .then((card) => res.send(card))
+  Movie.create({ owner: req.user._id, ...req.body })
+    .then((movie) => movie.populate('owner'))
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err instanceof ValidationError) {
         next(new BadRequestError('Переданы некорректные данные'));
@@ -29,22 +27,22 @@ const addMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.cardId)
+  Movie.findById(req.params.movieId)
     .orFail()
-    .then((card) => {
-      if (card.owner.toString() === req.user._id) {
-        return Movie.findOneAndRemove({ _id: req.params.cardId })
+    .then((movie) => {
+      if (movie.owner.toString() === req.user._id) {
+        return Movie.findOneAndRemove({ _id: req.params.movieId })
           .populate('owner')
           .orFail()
-          .then((cardWithOwner) => res.send(cardWithOwner));
+          .then((movieWithOwner) => res.send(movieWithOwner));
       }
       return Promise.reject(new ForbiddenError('Нельзя изменять данные других пользователей'));
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        next(new BadRequestError('Некоректный id карточки'));
+        next(new BadRequestError('Некорректный id фильма'));
       } else if (err instanceof DocumentNotFoundError) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        next(new NotFoundError('Запрашиваемый фильм не найден'));
       } else if (err instanceof ForbiddenError) {
         next(err);
       } else {

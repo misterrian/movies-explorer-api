@@ -1,4 +1,6 @@
 const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -8,7 +10,7 @@ const { errors } = require('celebrate');
 require('dotenv').config();
 
 const {
-  PORT = 3010,
+  PORT = 3000,
   MONGODB = 'mongodb://localhost:27017/moviesdb',
   NODE_ENV = 'dev',
 } = process.env;
@@ -20,9 +22,8 @@ const { errorsHandler } = require('./middlewares/errors');
 const app = express();
 
 const whitelist = [
-  'http://misterrian.movies-explorer.nomoredomains.sbs',
-  'https://misterrian.movies-explorer.nomoredomains.sbs',
-  'http://localhost:3010',
+  'http://api.misterrian.movies.nomoredomains.sbs',
+  'https://api.misterrian.movies.nomoredomains.sbs',
 ];
 
 app.use(cors({
@@ -35,6 +36,9 @@ app.use(cors({
   },
   credentials: true,
 }));
+
+app.use(helmet());
+app.use(rateLimit(require('./utils/rete-limit.json')));
 
 app.use(bodyParser.json());
 app.use(cookieParser());
