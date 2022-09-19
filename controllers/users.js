@@ -13,7 +13,6 @@ const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 const ConflictError = require('../errors/conflict-error');
-const InternalServerError = require('../errors/internal-server-error');
 
 const defaultSecretKey = require('../utils/constants');
 
@@ -36,10 +35,10 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err instanceof ValidationError) {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError('Пользователь с указанным email уже существует'));
       } else {
-        next(new InternalServerError('Произошла ошибка'));
+        next(err);
       }
     });
 };
@@ -80,7 +79,7 @@ const getCurrentUser = (req, res, next) => {
         } else if (err instanceof DocumentNotFoundError) {
           next(new NotFoundError('Запрашиваемый пользователь не найден'));
         } else {
-          next(new InternalServerError('Произошла ошибка'));
+          next(err);
         }
       });
   } else {
@@ -99,8 +98,10 @@ const updateProfile = (req, res, next) => {
         next(new BadRequestError('Переданы некорректные данные'));
       } else if (err instanceof DocumentNotFoundError) {
         next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Пользователь с указанным email уже существует'));
       } else {
-        next(new InternalServerError('Произошла ошибка'));
+        next(err);
       }
     });
 };

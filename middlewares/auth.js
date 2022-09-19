@@ -16,7 +16,7 @@ const auth = (req, res, next) => {
       next(new UnauthorizedError('Некорректный пользователь или пароль'));
     }
   } else {
-    next(new UnauthorizedError('Некорректный пользователь или пароль'));
+    next(new UnauthorizedError('Необходима авторизация пользователя'));
   }
 };
 

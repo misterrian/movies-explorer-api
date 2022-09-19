@@ -1,4 +1,8 @@
-const { celebrate, Joi } = require('celebrate');
+const {
+  celebrate,
+  Joi,
+} = require('celebrate');
+const { urlValidator } = require('../utils/utils');
 
 const mandatoryString = Joi.string()
   .required();
@@ -15,14 +19,14 @@ const userName = Joi.string()
   .min(2)
   .max(30);
 
-const url = Joi.string()
+const url = (errorMessage) => Joi.string()
   .required()
-  .pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/);
-
-const objectId = Joi.string()
-  .required()
-  .hex()
-  .length(24);
+  .custom((value, helpers) => {
+    if (urlValidator(value)) {
+      return value;
+    }
+    return helpers.message(errorMessage);
+  });
 
 const createUserValidator = celebrate({
   body: Joi.object()
@@ -57,10 +61,10 @@ const addMovieValidator = celebrate({
       duration: mandatoryNumber,
       year: mandatoryString,
       description: mandatoryString,
-      image: url,
-      trailerLink: url,
-      thumbnail: url,
-      movieId: objectId,
+      image: url('Поле image заполнено некорректно'),
+      trailerLink: url('Поле trailerLink заполнено некорректно'),
+      thumbnail: url('Поле thumbnail заполнено некорректно'),
+      movieId: mandatoryNumber,
       nameRU: mandatoryString,
       nameEN: mandatoryString,
     }),
@@ -69,7 +73,7 @@ const addMovieValidator = celebrate({
 const deleteMovieValidator = celebrate({
   params: Joi.object()
     .keys({
-      movieId: objectId,
+      movieId: Number,
     }),
 });
 

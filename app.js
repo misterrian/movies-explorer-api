@@ -37,6 +37,7 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use(requestLogger);
 app.use(helmet());
 app.use(rateLimit(require('./utils/rete-limit.json')));
 
@@ -47,7 +48,6 @@ mongoose.connect(MONGODB, {
   useNewUrlParser: true,
 });
 
-app.use(requestLogger);
 app.use(routes);
 
 app.use(errorLogger);
