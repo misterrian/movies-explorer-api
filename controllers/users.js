@@ -1,7 +1,6 @@
 const {
   DocumentNotFoundError,
   ValidationError,
-  CastError,
 } = require('mongoose').Error;
 
 const bcrypt = require('bcryptjs');
@@ -11,7 +10,6 @@ const User = require('../models/user');
 
 const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
-const UnauthorizedError = require('../errors/unauthorized-error');
 const ConflictError = require('../errors/conflict-error');
 
 const defaultSecretKey = require('../utils/constants');
@@ -69,22 +67,16 @@ const signout = (req, res) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  if (req.user) {
-    User.findById(req.user._id)
-      .orFail()
-      .then((user) => res.send(user))
-      .catch((err) => {
-        if (err instanceof CastError) {
-          next(new BadRequestError('Некорректный id пользователя'));
-        } else if (err instanceof DocumentNotFoundError) {
-          next(new NotFoundError('Запрашиваемый пользователь не найден'));
-        } else {
-          next(err);
-        }
-      });
-  } else {
-    next(new UnauthorizedError('Пользователь не авторизован'));
-  }
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err instanceof DocumentNotFoundError) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateProfile = (req, res, next) => {
