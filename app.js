@@ -22,8 +22,8 @@ const { errorsHandler } = require('./middlewares/errors');
 const app = express();
 
 const whitelist = [
-  'http://api.misterrian.movies.nomoredomains.sbs',
-  'https://api.misterrian.movies.nomoredomains.sbs',
+  'http://misterrian.movies.nomoredomains.sbs',
+  'https://misterrian.movies.nomoredomains.sbs',
 ];
 
 app.use(cors({
