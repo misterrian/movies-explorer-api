@@ -19,6 +19,11 @@ const userName = Joi.string()
   .min(2)
   .max(30);
 
+const id = Joi.string()
+  .required()
+  .hex()
+  .length(24);
+
 const url = (errorMessage) => Joi.string()
   .required()
   .custom((value, helpers) => {
@@ -73,7 +78,7 @@ const addMovieValidator = celebrate({
 const deleteMovieValidator = celebrate({
   params: Joi.object()
     .keys({
-      movieId: Number,
+      movieId: id,
     }),
 });
 
